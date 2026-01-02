@@ -1,98 +1,143 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import React from 'react';
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useAuth } from '../../contexts/AuthContext';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+export default function DashboardScreen() {
+  const { user } = useAuth();
 
-export default function HomeScreen() {
+  if (!user) {
+    return (
+      <SafeAreaView className="flex-1 bg-gray-50">
+        <View className="flex-1 justify-center items-center">
+          <Text className="text-gray-600">Loading user data...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  // Safe number conversion for financial data
+  const creditLimit = user.fuelAccount?.creditLimit ? Number(user.fuelAccount.creditLimit) : 0;
+  const balance = user.fuelAccount?.balance ? Number(user.fuelAccount.balance) : 0;
+  const availableCredit = creditLimit - balance;
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+    <SafeAreaView className="flex-1 bg-gray-50">
+      <ScrollView className="flex-1">
+        {/* Header */}
+        <View className="bg-blue-600 px-6 py-8">
+          <Text className="text-white text-2xl font-bold mb-1">
+            Welcome back, {user.firstName}!
+          </Text>
+          <Text className="text-blue-100 text-base">
+            Ready to fuel up your journey
+          </Text>
+        </View>
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+        {/* Credit Overview Card */}
+        <View className="mx-6 -mt-4 bg-white rounded-xl shadow-lg p-6 mb-6">
+          <Text className="text-gray-800 text-lg font-semibold mb-4">
+            Your Credit Account
+          </Text>
+          
+          <View className="flex-row justify-between items-center mb-4">
+            <View>
+              <Text className="text-gray-500 text-sm">Available Credit</Text>
+              <Text className="text-green-600 text-3xl font-bold">
+                GHS {availableCredit.toFixed(2)}
+              </Text>
+            </View>
+            <View className="items-end">
+              <Text className="text-gray-500 text-sm">Credit Limit</Text>
+              <Text className="text-gray-800 text-lg font-semibold">
+                GHS {creditLimit.toFixed(2)}
+              </Text>
+            </View>
+          </View>
+
+          <View className="bg-gray-100 rounded-lg p-3">
+            <View className="flex-row justify-between">
+              <Text className="text-gray-600 text-sm">Outstanding Balance</Text>
+              <Text className="text-orange-600 font-semibold">
+                GHS {balance.toFixed(2)}
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Quick Actions */}
+        <View className="mx-6 mb-6">
+          <Text className="text-gray-800 text-lg font-semibold mb-4">
+            Quick Actions
+          </Text>
+          
+          <View className="flex-row justify-between">
+            <TouchableOpacity className="bg-white rounded-lg p-4 flex-1 mr-2 items-center shadow-sm">
+              <Ionicons name="qr-code-outline" size={32} color="#3B82F6" />
+              <Text className="text-gray-800 font-medium mt-2">Scan QR</Text>
+              <Text className="text-gray-500 text-xs text-center">Buy Fuel</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity className="bg-white rounded-lg p-4 flex-1 mx-1 items-center shadow-sm">
+              <Ionicons name="card-outline" size={32} color="#10B981" />
+              <Text className="text-gray-800 font-medium mt-2">Pay Bill</Text>
+              <Text className="text-gray-500 text-xs text-center">Repayment</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity className="bg-white rounded-lg p-4 flex-1 ml-2 items-center shadow-sm">
+              <Ionicons name="gift-outline" size={32} color="#F59E0B" />
+              <Text className="text-gray-800 font-medium mt-2">Rewards</Text>
+              <Text className="text-gray-500 text-xs text-center">120 Points</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Recent Transactions */}
+        <View className="mx-6 mb-6">
+          <View className="flex-row justify-between items-center mb-4">
+            <Text className="text-gray-800 text-lg font-semibold">
+              Recent Transactions
+            </Text>
+            <TouchableOpacity>
+              <Text className="text-blue-600 font-medium">View All</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View className="bg-white rounded-lg shadow-sm">
+            {/* Mock transactions */}
+            {[
+              { date: '2026-01-01', station: 'Shell Station', amount: -45.00, status: 'Completed' },
+              { date: '2025-12-30', station: 'Total Station', amount: -32.50, status: 'Completed' },
+              { date: '2025-12-28', station: 'Payment', amount: +100.00, status: 'Payment' },
+            ].map((transaction, index) => (
+              <View
+                key={index}
+                className={`flex-row justify-between items-center p-4 ${
+                  index !== 2 ? 'border-b border-gray-100' : ''
+                }`}
+              >
+                <View className="flex-1">
+                  <Text className="text-gray-800 font-medium">
+                    {transaction.station}
+                  </Text>
+                  <Text className="text-gray-500 text-sm">{transaction.date}</Text>
+                </View>
+                <View className="items-end">
+                  <Text
+                    className={`font-semibold ${
+                      transaction.amount > 0 ? 'text-green-600' : 'text-orange-600'
+                    }`}
+                  >
+                    {transaction.amount > 0 ? '+' : ''}GHS {Math.abs(transaction.amount).toFixed(2)}
+                  </Text>
+                  <Text className="text-gray-500 text-sm">{transaction.status}</Text>
+                </View>
+              </View>
+            ))}
+          </View>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});
